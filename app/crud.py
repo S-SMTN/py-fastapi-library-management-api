@@ -54,8 +54,16 @@ def delete_author(
         return author
 
 
-def get_all_books(db: Session) -> List[DBBook]:
-    return db.query(DBBook).all()
+def get_all_books(
+        db: Session,
+        author_id: int | None = None
+) -> List[DBBook]:
+    queryset = db.query(DBBook)
+
+    if author_id is not None:
+        queryset = queryset.filter(DBBook.author_id == author_id)
+
+    return queryset.all()
 
 
 def create_book(db: Session, book: BookCreate) -> DBBook:

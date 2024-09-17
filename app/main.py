@@ -107,8 +107,11 @@ def delete_author(
     response_model=list[schemas.Book],
     status_code=status.HTTP_200_OK
 )
-def read_books(db: Session = Depends(get_db)) -> List[DBBook]:
-    return crud.get_all_books(db=db)
+def read_books(
+        db: Session = Depends(get_db),
+        author_id: int | None = None,
+) -> List[DBBook]:
+    return crud.get_all_books(db=db, author_id=author_id)
 
 
 @app.post(
