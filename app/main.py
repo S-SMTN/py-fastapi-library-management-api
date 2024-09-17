@@ -1,11 +1,15 @@
 from typing import List
 
-from fastapi import FastAPI, status, Depends, HTTPException
+from fastapi import FastAPI, status, Depends
+from fastapi_pagination import Page, add_pagination, paginate
+
 from sqlalchemy.orm import Session
 
-from app.custom_exceptions.http_exceptions import AuthorNotFoundException, BookNotFoundException
+from app.custom_exceptions.http_exceptions import (
+    AuthorNotFoundException,
+    BookNotFoundException
+)
 from app.db.database import SessionLocal
-
 from app import schemas, crud
 from app.db.models import DBBook, DBAuthor
 
@@ -28,11 +32,11 @@ def root() -> dict:
 
 @app.get(
     path="/authors/",
-    response_model=list[schemas.Author],
+    response_model=Page[schemas.Author],
     status_code=status.HTTP_200_OK,
 )
-def read_authors(db: Session = Depends(get_db)) -> List[DBAuthor]:
-    return crud.get_all_authors(db=db)
+def read_authors(db: Session = Depends(get_db)) -> Page[DBAuthor]:
+    return paginate(crud.get_all_authors(db=db))
 
 
 @app.post(
@@ -51,7 +55,7 @@ def create_author(
 
 
 @app.get(
-    path="/authors/{author_id}",
+    path="/authors/{author_id}/",
     response_model=schemas.Author,
     status_code=status.HTTP_200_OK,
 )
@@ -67,7 +71,7 @@ def retrieve_author(
 
 
 @app.put(
-    path="/authors/{author_id}/update",
+    path="/authors/{author_id}/update/",
     response_model=schemas.Author,
     status_code=status.HTTP_200_OK,
 )
@@ -89,7 +93,7 @@ def author_update(
 
 
 @app.delete(
-    path="/authors/{author_id}/delete",
+    path="/authors/{author_id}/delete/",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_author(
@@ -104,14 +108,14 @@ def delete_author(
 
 @app.get(
     path="/books/",
-    response_model=list[schemas.Book],
+    response_model=Page[schemas.Book],
     status_code=status.HTTP_200_OK
 )
 def read_books(
         db: Session = Depends(get_db),
         author_id: int | None = None,
-) -> List[DBBook]:
-    return crud.get_all_books(db=db, author_id=author_id)
+) -> Page[DBBook]:
+    return paginate(crud.get_all_books(db=db, author_id=author_id))
 
 
 @app.post(
@@ -147,7 +151,7 @@ def retrieve_book(
 
 
 @app.put(
-    path="/books/{book_id}/update",
+    path="/books/{book_id}/update/",
     response_model=schemas.Book,
     status_code=status.HTTP_200_OK,
 )
@@ -169,7 +173,7 @@ def book_update(
 
 
 @app.delete(
-    path="/books/{book_id}/delete",
+    path="/books/{book_id}/delete/",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def book_update(
@@ -180,3 +184,6 @@ def book_update(
 
     if book is None:
         raise BookNotFoundException
+
+
+add_pagination(app)
