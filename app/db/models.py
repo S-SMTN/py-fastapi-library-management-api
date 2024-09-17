@@ -18,6 +18,7 @@ class DBBook(DBBaseModel):
     summary = Column(String)
     publication_date = Column(Date)
     author_id = Column(Integer, ForeignKey("author.id"))
+    author = relationship("DBAuthor", back_populates="books")
 
 
 class DBAuthor(DBBaseModel):
