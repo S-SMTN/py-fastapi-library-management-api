@@ -23,6 +23,7 @@ class DBBook(DBBaseModel):
 
 class DBAuthor(DBBaseModel):
     __tablename__ = "author"
+
     name = Column(String(50), unique=True)
     bio = Column(String(255))
     books = relationship(DBBook, back_populates="author")
